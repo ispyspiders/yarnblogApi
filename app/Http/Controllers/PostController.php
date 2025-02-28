@@ -26,31 +26,31 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'category' =>'required|string|max:255',
+            'category' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048'
         ]);
 
         // variabler för bild
         $file_path = null;
         $file_url = null;
-        
-        // Om bildfil finns i request
-        if($request->hasFile('image')){
 
-            if(!$request->file('image')->isValid()){
+        // Om bildfil finns i request
+        if ($request->hasFile('image')) {
+
+            if (!$request->file('image')->isValid()) {
                 return response()->json([
                     'error' => 'External error: File upload failed',
                     'message' => 'Upload failed because the file is not valid'
-                ],400);
+                ], 400);
             }
 
             $file_path = $request->file('image')->store('images', env('STORAGE_DRIVER', 'local'));
 
-            if(!$file_path){
+            if (!$file_path) {
                 return response()->json([
                     'error' => 'Internal error: File upload failed',
                     'message' => 'The file could not be saved due to an internal error'
-                ],500);
+                ], 500);
             }
 
             /** @var \Illuminate\Filesystem\FilesystemManager $disk */
@@ -64,7 +64,7 @@ class PostController extends Controller
         return Post::create([
             'title' => $request->title,
             'content' => $request->content,
-            'category'=> $request->category,
+            'category' => $request->category,
             'image_file' => $file_path,
             'image_url' => $file_url,
             'user_id' => $user->id,
@@ -92,7 +92,83 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $post = Post::find($id);
+        //om post inte finns
+        if ($post == null) {
+            return response()->json([
+                'error' => 'Post not found',
+                'message' => 'No post with the chosen id was found'
+            ], 404);
+        }
+
+        // Hämta autentiserad användare
+        $user = $request->user();
+        // Kontrollera om autentiserad användare är samma som inläggets författare - om inte returnera Unauthorized 403
+        if (!($user->id === $post->user_id)) {
+            return response()->json([
+                'error' => 'Unauthorized user',
+                'messsage' => 'You do not have sufficent permissions to perform this action'
+            ], 403);
+        }
+
+        // Validera ingående data
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048'
+        ]);
+
+        // variabler för bild
+        $file_path = $post->image_file;
+        $file_url = $post->image_url;
+
+        // Om bildfil finns i request
+        if ($request->hasFile('image')) {
+
+            if (!$request->file('image')->isValid()) {
+                return response()->json([
+                    'error' => 'External error: File upload failed',
+                    'message' => 'Upload failed because the file is not valid'
+                ], 400);
+            }
+
+            // Ta bort gammal bild ur storage om det finns en
+            if ($post->image_file != null) {
+                if (Storage::exists($post->image_file)) {
+                    try {
+                        Storage::disk(env('STORAGE_DRIVER', 'local'))->delete($post->image_file);
+                    } catch (\Throwable $th) {
+                        //TODO: hantera storage error till backend server log
+                    }
+                }
+            }
+
+            $file_path = $request->file('image')->store('images', env('STORAGE_DRIVER', 'local'));
+
+            // Fel vid uppladdning
+            if (!$file_path) {
+                return response()->json([
+                    'error' => 'Internal error: File upload failed',
+                    'message' => 'The file could not be saved due to an internal error'
+                ], 500);
+            }
+
+            /** @var \Illuminate\Filesystem\FilesystemManager $disk */
+            $disk = Storage::disk(env('STORAGE_DRIVER', 'local'));
+            $file_url = $disk->url($file_path);
+        }
+
+        $post->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'category' => $request->category,
+            'image_file' => $file_path,
+            'image_url' => $file_url,
+            'user_id' => $user->id,
+        ]);
+
+        return $post;
     }
 
     /**
