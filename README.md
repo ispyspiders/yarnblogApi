@@ -38,6 +38,11 @@ Webbtjänsten finns publicerad på:
 | ------------- | -------------------------    | ------------- |
 | POST          | /api/login                   | Loggar in en användare [^1] |
 | POST          | /api/register                | Registrerar en användare [^2] |
+| ------------- | -------------------------    | ------------- |
+| GET           | /api/posts                   | Hämtar alla inlägg |
+| GET           | /api/posts/{id}              | Hämtar inlägg med angivet ID |
+| ------------- | -------------------------    | ------------- |
+| GET           | /api/posts/{id}/comments     | Hämtar alla kommentarer för inlägg med angivet ID |
 
 [^1] Kräver att ett user-objekt skickas med. (Endast email och password)
 
@@ -54,20 +59,23 @@ Ett user-objekt skickas som JSON med följande struktur:
 ```
 
 #### Privata routes
-| Metod         | Ändpunkt                       | Beskrivning   |
-| ------------- | -------------------------      | ------------- |
-| GET           | /api/posts                     | Hämtar alla inlägg |
-| POST          | /api/logout                    | Loggar ut inloggad användare |
-| ------------- | -------------------------      | ------------- |
-| GET           | /api/posts                     | Hämtar alla inlägg |
-| GET           | /api/posts/{id}                | Hämtar inlägg med angivet ID |
-| POST          | /api/posts                     | Skapar ett nytt inlägg [^3] |
-| POST          | /api/posts/{id}?_method=PUT    | Uppdaterar ett inlägg med angivet ID [^4] |
-| PUT           | /api/posts/{id}                | Uppdaterar ett inlägg med angivet ID [^5] |
-| DELETE        | /api/posts/{id}                | Raderar ett inlägg med angivet ID |
+| Metod         | Ändpunkt                              | Beskrivning   |
+| ------------- | ------------------------------------- | ------------- |
+| POST          | /api/logout                           | Loggar ut inloggad användare |
+| ------------- | ------------------------------------- | ------------- |
+| POST          | /api/posts                            | Skapar ett nytt inlägg [^3] |
+| POST          | /api/posts/{id}?_method=PUT           | Uppdaterar ett inlägg med angivet ID [^4] |
+| PUT           | /api/posts/{id}                       | Uppdaterar ett inlägg med angivet ID [^5] |
+| DELETE        | /api/posts/{id}                       | Raderar ett inlägg med angivet ID |
+| ------------- | ------------------------------------- | ------------- |
+| POST          | /api/posts/{id}/comments              | Skapar en ny kommentar på inlägg med angivet id [^6] |
+| DELETE        | /api/comments/{id}                    | Raderar kommentar med angivet id |
+
 
 [^3] Kräver att ett post-objekt skickas med som formdata (om bildfil ska skickas) eller JSON.
+
 [^4] Kräver att ett post-objekt skickas med som formdata (om bildfil ska skickas) eller JSON. (Sätter manuellt metoden till PUT) 
+
 [^5] Kräver att ett post-objekt skickas med som JSON-data (OBS! Kan ej uppdatera bild då formdata ej kan hantera metoden PUT i PHP)
 
 Ett post-objekt skickas som formulär- eller JSON-data med följande struktur:
@@ -79,5 +87,15 @@ Ett post-objekt skickas som formulär- eller JSON-data med följande struktur:
     "category": "Stickning",
     "user_id": 1,
     "image": "null | file upload"
+}
+```
+
+[^6] Kräver att ett comment-objekt skickas med som JSON.
+
+Ett comment-objekt skickas som JSON med följande struktur:
+
+``` 
+{
+    "comment": "En kommentar"
 }
 ```
