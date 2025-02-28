@@ -47,7 +47,15 @@ class User extends Authenticatable
         ];
     }
 
-    public function posts(){
-        return $this->hasMany(Post::class); // En användare kan ha många inlägg
+    // En användare kan ha många inlägg
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    // En användare kan ha många kommentarer
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }
