@@ -174,8 +174,44 @@ class PostController extends Controller
     /**
      * DELETE the specified post.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        //
+        // Läs in inlägg
+        $post = Post::find($id);
+
+        //om post inte finns
+        if ($post == null) {
+            return response()->json([
+                'error' => 'Post not found',
+                'message' => 'No post with the chosen id was found'
+            ], 404);
+        }
+
+        // Hämta autentiserad användare
+        $user = $request->user();
+        // Kontrollera om autentiserad användare är samma som inläggets författare - om inte returnera Unauthorized 403
+        if (!($user->id === $post->user_id)) {
+            return response()->json([
+                'error' => 'Unauthorized user',
+                'messsage' => 'You do not have sufficent permissions to perform this action'
+            ], 403);
+        }
+
+        // Om inlägg har bild
+        if ($post->image_file != null) {
+            if (Storage::exists($post->image_file)) {
+                // Ta bort bild ur storage
+                try {
+                    Storage::disk(env('STORAGE_DRIVER', 'local'))->delete($post->image_file);
+                } catch (\Throwable $th) {
+                    //TODO: hantera storage error till backend server log
+                }
+            }
+        }
+        // radera inlägg
+        $post->delete();
+        return response()->json([
+            'message' => 'Inlägg raderat'
+        ]);
     }
 }
