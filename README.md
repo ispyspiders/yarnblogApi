@@ -1,5 +1,5 @@
 # Backend för Moment 3 - Fördjupad frontend-utveckling
-#### Av Kajsa Classon, HT24. DT193G - Fullstack-utveckling med ramverk, Mittuniversitetet.
+#### Av Kajsa Classon, HT24. DT210G - Fördjupad frontend-utveckling, Mittuniversitetet.
 
 En REST-webbtjänst för en bloggplattform. 
 Webbtjänsten har full CRUD-funktionalitet för att hantera inlägg och sköter även registrering av användare samt in- och utloggning.
@@ -70,7 +70,6 @@ Ett user-objekt skickas som JSON med följande struktur:
 | ------------- | ------------------------------------- | ------------- |
 | POST          | /api/posts/{id}/comments              | Skapar en ny kommentar på inlägg med angivet id [^6] |
 | DELETE        | /api/comments/{id}                    | Raderar kommentar med angivet id |
-
 
 [^3] Kräver att ett post-objekt skickas med som formdata (om bildfil ska skickas) eller JSON.
 
