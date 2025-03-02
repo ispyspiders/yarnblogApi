@@ -21,6 +21,7 @@ Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->middlewa
 // Public routes
 Route::get('/posts', [PostController::class, 'index']);  // Routing för att läsa in alla inlägg
 Route::get('/posts/{id}', [PostController::class, 'show']); // Routing för att läsa in inlägg med valt id
+Route::get('/users/{userId}/posts', [PostController::class, 'index']); // Routing för att läsa in alla inlägg från användare
 Route::get('/posts/{id}/comments', [CommentController::class, 'index']); // Routing för att läsa in kommentarer för valt inlägg
 Route::post('/register', [AuthController::class, 'register']); // Route för att registrera användare
 Route::post('/login', [AuthController::class, 'login']); // Route för att logga in användare

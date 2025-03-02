@@ -11,8 +11,10 @@ class PostController extends Controller
     /**
      * GET all posts
      */
-    public function index()
+    public function index($userId = null)
     {
+        // Om användare skickas med
+        if($userId) return Post::where('user_id', $userId)->get();
         // Returnera alla inlägg
         return Post::all();
     }
