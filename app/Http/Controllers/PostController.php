@@ -80,7 +80,7 @@ class PostController extends Controller
         // Hämta autentiserad användare
         $user = $request->user();
 
-        return Post::create([
+        $post = Post::create([
             'title' => $request->title,
             'content' => $request->content,
             'category' => $request->category,
@@ -88,6 +88,19 @@ class PostController extends Controller
             'image_url' => $file_url,
             'user_id' => $user->id,
         ]);
+
+        return response()->json([
+            'id' => $post->id,
+            'title' => $post->title,
+            'content' => $post->content,
+            'category' => $post->category,
+            'image_file' => $post->image_file,
+            'image_url' => $post->image_url,
+            'user_id' => $post->user_id,
+            'user_name' => $post->user->name,
+            'created_at' => $post->created_at,
+            'updated_at' => $post->updated_at
+        ],201);
     }
 
     /**
