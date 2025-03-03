@@ -14,9 +14,23 @@ class PostController extends Controller
     public function index($userId = null)
     {
         // Om användare skickas med
-        if($userId) return Post::where('user_id', $userId)->get();
+        if ($userId) {
+            $posts = Post::where('user_id', $userId)->with('user')->get();
+        } else {
+            $posts = Post::with('user')->get();
+        }
         // Returnera alla inlägg
-        return Post::all();
+        return response()->json($posts->map(function ($post) {
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'content' => $post->content,
+                'user_id' => $post->user->id,
+                'user_name' => $post->user->name,
+                'created_at' => $post->created_at,
+                'updated_at' => $post->updated_at,
+            ];
+        }));
     }
 
     /**
@@ -79,9 +93,18 @@ class PostController extends Controller
     public function show(string $id)
     {
         // Kontrollera om valt id finns, returnera i så fall inlägg med valt id
-        $post = Post::find($id);
-        if ($post != null) return $post;
-        else {
+        $post = Post::with('user')->find($id);
+        if ($post != null) {
+            return response()->json([
+                'id' => $post->id,
+                'title' => $post->title,
+                'content' => $post->content,
+                'user_id' => $post->user_id,
+                'user_name' => $post->user->name,
+                'created_at' => $post->created_at,
+                'updated_at' => $post->updated_at
+            ]);
+        } else {
             return response()->json([
                 'error' => 'Post not found',
                 'message' => 'No post with the chosen id was found'

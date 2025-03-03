@@ -13,7 +13,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); // Logga ut användare
-Route::resource('/posts', PostController::class)->middleware('auth:sanctum'); // Routing för inlägg
+
+// Route::resource('/posts', PostController::class)->middleware('auth:sanctum'); // Routing för inlägg
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::put('/posts/{id}', [PostController::class, 'update']);
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+});
+
 Route::post('/posts/{id}/comments', [CommentController::class, 'store'])->middleware('auth:sanctum'); // Routing för att lägga till kommentar på inlägg
 Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->middleware('auth:sanctum'); // Routing för att ta bort en kommentar med valt id
 
